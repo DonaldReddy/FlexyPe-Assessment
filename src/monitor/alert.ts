@@ -1,26 +1,21 @@
-import { NextFunction, Request, Response } from "express";
-import { logFailedRequest } from "../models/failedRequestLog.schema";
 import { addToMailQueue } from "../utils/sendMail";
 import { redisClient } from "../redis/redisConnect";
 
-const MAX_REQUESTS = 5; // max requests allowed in the time window
+const MAX_REQUESTS = 2; // max requests allowed in the time window
 const TIME_WINDOW = 10; // time window in seconds.
 
-export const rateLimit = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
+export const validateInvalidRequest = async (ip: string) => {
 	try {
-		const IP = "rate" + req.ip;
-		if (!IP) {
-			res.status(400).json({
-				message: "Invalid IP",
-			});
+		console.log("ip", ip);
+
+		if (!ip) {
 			return;
 		}
+		const IP = "invalid" + ip;
 		const IPinfo = await redisClient.get(IP);
 		if (IPinfo) {
+			console.log("IPinfo", IPinfo);
+
 			const current_count = parseInt(IPinfo) + 1;
 			const prevTTL = await redisClient.ttl(IP);
 			// checking if the time window is not expired for the IP
@@ -28,27 +23,17 @@ export const rateLimit = async (
 				// if the current count is greater than the max requests
 				if (current_count > MAX_REQUESTS) {
 					// log the failed request into the database
-					logFailedRequest(
-						req.ip || "unknown ip",
-						"Too many requests",
-						req.url,
-						req.method,
-					);
-
 					addToMailQueue({
 						to: "donaldreddy2712@gmail.com",
-						subject: "Too many requests",
+						subject: "Invalid requests exceeded",
 						html: `<p>unusual activity detected from this IP:- ${IP.replace(
-							"rate",
+							"invalid",
 							"",
 						)}</p>
-						<p>${new Date().toUTCString()}</p>
-						`,
+                        <p>${new Date().toUTCString()}</p>
+                        `,
 					});
 
-					res.status(429).json({
-						message: "Too many requests, please try again later",
-					});
 					return;
 				}
 				// set the new count and set the remaining time window
@@ -64,11 +49,7 @@ export const rateLimit = async (
 			await redisClient.set(IP, 1);
 			await redisClient.expire(IP, TIME_WINDOW);
 		}
-		next();
 	} catch (error) {
 		console.error(error);
-		res.status(500).json({
-			message: "Internal server error",
-		});
 	}
 };

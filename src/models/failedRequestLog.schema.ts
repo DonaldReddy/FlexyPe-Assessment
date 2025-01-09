@@ -32,6 +32,10 @@ export async function logFailedRequest(
 	endPoint: string,
 	method: string,
 ) {
-	const log = new FailedRequestLogModel({ ip, message, endPoint, method });
-	log.save();
+	try {
+		const log = new FailedRequestLogModel({ ip, message, endPoint, method });
+		log.save();
+	} catch (error) {
+		console.log("Failed to log failed request:", error);
+	}
 }

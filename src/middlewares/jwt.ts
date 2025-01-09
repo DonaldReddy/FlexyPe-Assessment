@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { logFailedRequest } from "../models/failedRequestLog.schema";
+import { validateInvalidRequest } from "../monitor/alert";
 
 const SECRET_KEY = process.env.SECRET_KEY || "secret";
 // Generate token
@@ -23,17 +24,7 @@ export const verifyToken = (
 	try {
 		const authHeader = req.headers.authorization;
 		if (!authHeader || !authHeader.startsWith("Bearer ")) {
-			// log the failed request into the database
-			logFailedRequest(
-				req.ip || "unknown ip",
-				"Invalid token",
-				req.url,
-				req.method,
-			).catch((err) => console.error("Failed to log failed request:", err));
-			res.status(401).json({
-				message: "Token not provided or invalid format",
-			});
-			return;
+			throw new Error("Invalid token");
 		}
 		const token = authHeader.split(" ")[1];
 		jwt.verify(token, SECRET_KEY);
@@ -45,8 +36,8 @@ export const verifyToken = (
 			"Invalid token",
 			req.url,
 			req.method,
-		).catch((err) => console.error("Failed to log failed request:", err));
-
+		);
+		validateInvalidRequest(req.ip || "unknown ip");
 		res.status(401).json({
 			message: "Invalid token",
 		});
