@@ -11,6 +11,7 @@ export const validateInvalidRequest = async (ip: string) => {
 		if (!ip) {
 			return;
 		}
+
 		const IP = "invalid" + ip;
 		const IPinfo = await redisClient.get(IP);
 		if (IPinfo) {
