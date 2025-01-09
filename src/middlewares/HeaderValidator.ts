@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { logFailedRequest } from "../models/FailedRequestLog.schema";
+import { logFailedRequest } from "../models/failedRequestLog.schema";
 
 // Checking if the header name is valid
 const isValidHeaderName = (name: string) => /^[a-zA-Z0-9-]+$/.test(name);

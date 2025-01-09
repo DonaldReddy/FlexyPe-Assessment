@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { logFailedRequest } from "../models/FailedRequestLog.schema";
+import { logFailedRequest } from "../models/failedRequestLog.schema";
 import { addToMailQueue } from "../utils/sendMail";
 import { redisClient } from "../redis/redisConnect";
 

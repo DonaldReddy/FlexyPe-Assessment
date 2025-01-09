@@ -1,10 +1,10 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
-import { headerValidator } from "./middlewares/HeaderValidator";
-import { generateToken, verifyToken } from "./middlewares/JWT";
-import { rateLimit } from "./middlewares/RateLimit";
+import { headerValidator } from "./middlewares/headerValidator";
+import { generateToken, verifyToken } from "./middlewares/jwt";
+import { rateLimit } from "./middlewares/rateLimit";
 import dbConnect from "./database/dbConnect";
-import { FailedRequestLogModel } from "./models/FailedRequestLog.schema";
+import { FailedRequestLogModel } from "./models/failedRequestLog.schema";
 
 const app = express();
 const PORT = process.env.PORT || 3000;

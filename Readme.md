@@ -4,11 +4,11 @@ To install FlexyPe, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/DonaldReddy/FlexyPe-Assesment.git
+   git clone https://github.com/DonaldReddy/FlexyPe-Assessment.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd FlexyPe-Assesment
+   cd FlexyPe-Assessment
    ```
 3. Install the dependencies:
    ```bash
