@@ -6,7 +6,7 @@ const isValidHeaderName = (name: string) => /^[a-zA-Z0-9-]+$/.test(name);
 // Checking if the header value is valid
 const isValidHeaderValue = (value: string) => !/[\x00-\x1F\x7F]/.test(value);
 
-export async function headerValidator(
+export function headerValidator(
 	req: Request,
 	res: Response,
 	next: NextFunction,
@@ -22,7 +22,12 @@ export async function headerValidator(
 		});
 		if (invalidHeaders.length > 0) {
 			// log the failed request into the database
-			await logFailedRequest(req.ip || "unknown ip", "Invalid headers",req.url);
+			logFailedRequest(
+				req.ip || "unknown ip",
+				"Invalid headers",
+				req.url,
+				req.method,
+			).catch((err) => console.error("Failed to log failed request:", err));
 			res.status(400).json({
 				message: "Invalid headers",
 				invalidHeaders,

@@ -7,7 +7,7 @@ const SECRET_KEY = process.env.SECRET_KEY || "secret";
 export const generateToken = (data: string) => {
 	try {
 		return jwt.sign({ data }, SECRET_KEY, {
-			expiresIn: "10h",
+			expiresIn: 60 * 10,
 		});
 	} catch (error) {
 		console.log(error);
@@ -15,7 +15,7 @@ export const generateToken = (data: string) => {
 };
 
 // Verify token
-export const verifyToken = async (
+export const verifyToken = (
 	req: Request,
 	res: Response,
 	next: NextFunction,
@@ -24,7 +24,12 @@ export const verifyToken = async (
 		const authHeader = req.headers.authorization;
 		if (!authHeader || !authHeader.startsWith("Bearer ")) {
 			// log the failed request into the database
-			await logFailedRequest(req.ip || "unknown ip", "Invalid token", req.url);
+			logFailedRequest(
+				req.ip || "unknown ip",
+				"Invalid token",
+				req.url,
+				req.method,
+			).catch((err) => console.error("Failed to log failed request:", err));
 			res.status(401).json({
 				message: "Token not provided or invalid format",
 			});
@@ -35,7 +40,12 @@ export const verifyToken = async (
 		next();
 	} catch (error) {
 		// log the failed request into the database
-		await logFailedRequest(req.ip || "unknown ip", "Invalid token", req.url);
+		logFailedRequest(
+			req.ip || "unknown ip",
+			"Invalid token",
+			req.url,
+			req.method,
+		).catch((err) => console.error("Failed to log failed request:", err));
 
 		res.status(401).json({
 			message: "Invalid token",
