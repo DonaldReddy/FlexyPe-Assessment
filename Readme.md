@@ -27,7 +27,7 @@ To start the server, run the following command:
 npm run start
 ```
 
-## Endpoints
+## API Endpoints
 
 ```bash
 GET :-  /api/login
